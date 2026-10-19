@@ -20,12 +20,12 @@ export function showMessage(element, message, isError = false) {
 
 export async function requireUser() {
   if (!configured || !supabase) {
-    location.href = "index.html?setup=1";
+    location.replace("/?setup=1");
     return null;
   }
   const { data, error } = await supabase.auth.getUser();
   if (error || !data.user) {
-    location.href = "index.html";
+    location.replace("/");
     return null;
   }
   return data.user;
@@ -53,5 +53,5 @@ export function formatDate(value) {
 
 export async function signOut() {
   if (supabase) await supabase.auth.signOut();
-  location.href = "index.html";
+  location.replace("/");
 }
