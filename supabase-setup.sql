@@ -49,6 +49,7 @@ grant execute on function public.is_support_staff() to authenticated;
 create or replace function public.touch_ticket_updated_at()
 returns trigger
 language plpgsql
+security definer
 set search_path = public
 as $$
 begin
