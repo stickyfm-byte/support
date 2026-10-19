@@ -44,17 +44,19 @@ document.querySelector("#new-ticket").addEventListener("submit", async event => 
   }).select().single();
   if (error) { submit.disabled = false; return showMessage(notice, error.message, true); }
   let attachment_path = null;
+  let uploadWarning = "";
   if (file instanceof File && file.size) {
     const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g,"_").slice(-100);
-    attachment_path = ticket.id + "/" + user.id + "/" + crypto.randomUUID() + "-" + safeName;
-    const { error: uploadError } = await supabase.storage.from("ticket-attachments").upload(attachment_path, file, {upsert:false, contentType:file.type});
-    if (uploadError) { await supabase.from("tickets").delete().eq("id",ticket.id); submit.disabled = false; return showMessage(notice, "Image upload failed: " + uploadError.message, true); }
+    const objectPath = ticket.id + "/" + user.id + "/" + crypto.randomUUID() + "-" + safeName;
+    const { error: uploadError } = await supabase.storage.from("ticket-attachments").upload(objectPath, file, {upsert:false, contentType:file.type});
+    if (uploadError) uploadWarning = " The image could not be uploaded (" + uploadError.message + "), but your message will still be sent.";
+    else attachment_path = objectPath;
   }
   const { error: msgError } = await supabase.from("ticket_messages").insert({ticket_id:ticket.id, sender_id:user.id, body, attachment_path});
   submit.disabled = false;
   if (msgError) return showMessage(notice, "Ticket created, but the first message failed: " + msgError.message, true);
   event.currentTarget.reset();
-  showMessage(notice, "Ticket created successfully.");
+  showMessage(notice, "Ticket created successfully." + uploadWarning, Boolean(uploadWarning));
   selectedTicket = ticket.id;
   await loadTickets();
   await openTicket(ticket);
