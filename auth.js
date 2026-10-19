@@ -9,7 +9,9 @@ if (new URLSearchParams(location.search).has("setup")) {
 }
 if (location.hash.includes("error_description")) {
   const params = new URLSearchParams(location.hash.slice(1));
-  showMessage(notice, params.get("error_description") || "Sign-in could not be completed.", true);
+  const code = params.get("error_code");
+  const description = params.get("error_description") || "Sign-in could not be completed.";
+  showMessage(notice, code === "otp_expired" ? "That confirmation link has expired or was already used. Request a fresh confirmation email and open the newest link. If it keeps happening, check the Supabase Site URL and confirmation email template." : description, true);
   history.replaceState(null, "", location.pathname);
 }
 
