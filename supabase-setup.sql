@@ -81,7 +81,7 @@ using (created_by = (select auth.uid()) or (select public.is_support_staff()));
 drop policy if exists "Players can create own tickets" on public.tickets;
 create policy "Players can create own tickets"
 on public.tickets for insert to authenticated
-with check (created_by = (select auth.uid()));
+with check (created_by = (select auth.uid()) and status = 'open');
 
 drop policy if exists "Staff can update ticket status" on public.tickets;
 create policy "Staff can update ticket status"
