@@ -51,6 +51,9 @@ document.querySelector("#signup-form").addEventListener("submit", async event =>
     }
   });
   if (error) {
+    if (/rate limit|email rate limit exceeded|too many requests/i.test(error.message || "")) {
+      return showMessage(notice, "Supabase has temporarily limited email sending. Wait a while before trying again, and avoid repeatedly requesting verification or password-reset emails. For a lasting fix, configure custom SMTP in Supabase Dashboard → Project Settings → Authentication/SMTP Settings (or Authentication → SMTP Settings, depending on dashboard layout), then review Authentication rate limits.", true);
+    }
     if (/database error saving new user/i.test(error.message || "")) {
       return showMessage(notice, "Supabase rejected the account while saving it to the database. A database trigger or username constraint likely needs fixing; check the Supabase Postgres logs for the exact cause.", true);
     }
