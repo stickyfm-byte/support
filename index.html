@@ -40,6 +40,8 @@
         <button id="reset-password" class="button link-button" type="button">Forgot password?</button>
       </form>
       <form id="signup-form" class="form-stack" hidden>
+        <label>Username<input name="username" type="text" autocomplete="username" required minlength="3" maxlength="24" pattern="[A-Za-z0-9_]+" title="Use 3–24 letters, numbers or underscores." placeholder="Your player name"></label>
+        <p class="hint">Use 3–24 letters, numbers or underscores.</p>
         <label>Email address<input name="email" type="email" autocomplete="email" required placeholder="you@example.com"></label>
         <label>Password<input name="password" type="password" autocomplete="new-password" required minlength="8" placeholder="At least 8 characters"></label>
         <p class="hint">Use at least 8 characters. You may need to verify your email before signing in.</p>
