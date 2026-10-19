@@ -31,7 +31,7 @@ document.querySelector("#login-form").addEventListener("submit", async event => 
     email: form.get("email"), password: form.get("password")
   });
   if (error) return showMessage(notice, error.message, true);
-  location.href = "dashboard.html";
+  location.href = "/dashboard/";
 });
 
 document.querySelector("#signup-form").addEventListener("submit", async event => {
@@ -46,7 +46,7 @@ document.querySelector("#signup-form").addEventListener("submit", async event =>
     email: form.get("email"),
     password: form.get("password"),
     options: {
-      emailRedirectTo: SITE_URL + "/dashboard.html",
+      emailRedirectTo: SITE_URL + "/dashboard/",
       data: { username }
     }
   });
@@ -59,7 +59,7 @@ document.querySelector("#signup-form").addEventListener("submit", async event =>
     }
     return showMessage(notice, error.message, true);
   }
-  if (data.session) location.href = "dashboard.html";
+  if (data.session) location.href = "/dashboard/";
   else showMessage(notice, "Account created. Check your email for the verification link.");
 });
 
@@ -67,7 +67,7 @@ document.querySelector("#discord-login").addEventListener("click", async () => {
   if (!supabase) return showMessage(notice, "Complete Supabase setup first.", true);
   const { error } = await supabase.auth.signInWithOAuth({
     provider: "discord",
-    options: { redirectTo: SITE_URL + "/dashboard.html" }
+    options: { redirectTo: SITE_URL + "/dashboard/" }
   });
   if (error) showMessage(notice, error.message, true);
 });
@@ -85,5 +85,5 @@ document.querySelector("#reset-password").addEventListener("click", async () => 
 
 if (supabase) {
   const { data } = await supabase.auth.getSession();
-  if (data.session) location.replace("dashboard.html");
+  if (data.session) location.replace("/dashboard/");
 }
