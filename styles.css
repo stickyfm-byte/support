@@ -45,3 +45,42 @@ body.landing-page:before{opacity:.035;background-size:64px 64px}
 .footer{border-color:#ffffff12;color:#7895a6}.footer a{color:#a8c1cf}
 @media(max-width:780px){.auth-layout{grid-template-columns:1fr;gap:28px;padding-top:38px;max-width:520px}.intro h1{font-size:clamp(48px,11vw,64px)}.intro .support-note,.intro .trust-row{display:none}.panel{padding:22px}.topbar{padding-inline:18px}.site-nav{gap:14px}}
 @media(max-width:420px){.site-nav{gap:12px}.site-nav .text-link:first-child{display:inline}.brand-name{font-size:12px}.auth-layout{padding-inline:16px}.panel{padding:18px}}
+
+
+/* Rounded, pill-shaped Mirage Productions controls and matching Discord button */
+:root{--discord:#5865F2}
+body.landing-page{background:linear-gradient(180deg,#061c2d 0%,#0a2c47 52%,#123d5b 100%);background-attachment:fixed}
+body.landing-page:before{opacity:.025}
+.topbar{min-height:56px}
+.brand-mark{border-radius:7px;clip-path:none;box-shadow:0 0 18px #168edb20}
+.site-nav .text-link{border-radius:999px;padding:9px 13px;transition:background .18s,color .18s}
+.site-nav .text-link:hover{background:#0b354e;color:#65EAFF}
+.auth-layout{max-width:1060px;grid-template-columns:minmax(0,1fr) minmax(350px,420px);gap:clamp(44px,7vw,90px);padding-top:58px}
+.intro h1{font-size:clamp(58px,6.8vw,84px);letter-spacing:-.07em}
+.auth-panel{border-radius:16px;padding:28px;background:linear-gradient(150deg,#0b2c43f5,#061b2bf5);box-shadow:0 24px 70px #00101d35}
+.panel-kicker{font-size:10px;letter-spacing:.14em;margin-bottom:18px}
+.tabs{border-radius:12px;padding:4px;background:#031827;border-color:#16445a}
+.tab{border-radius:9px;padding:12px}
+.form-stack input,.field,.form-stack textarea,.form-stack select{border-radius:9px;background:#041b2a;border-color:#1a4b62;padding:13px 14px}
+.form-stack input:focus,.field:focus,textarea:focus,select:focus{box-shadow:0 0 0 3px #65EAFF20}
+.button{border-radius:999px;min-height:46px;padding:13px 19px;transition:transform .18s ease,filter .18s ease,box-shadow .18s ease}
+.button:hover{transform:translateY(-1px);box-shadow:0 7px 22px #0003}
+.button:active{transform:translateY(0) scale(.985)}
+.primary{background:linear-gradient(135deg,#65EAFF,#5CECFF);box-shadow:0 5px 18px #5cecff18}
+.link-button{border-radius:999px}
+.discord{background:#5865F2;color:#fff;border-color:#7280ff;justify-content:flex-start;gap:12px}
+.discord:hover{background:#4752c4;filter:none}
+.discord-logo{width:23px;height:23px;object-fit:contain;border-radius:6px;flex:none}
+.discord .button-arrow{color:#fff;opacity:.85}
+.or-divider:before,.or-divider:after{background:#16445a}
+.support-note{border-radius:12px;padding:18px;margin-top:30px;background:#071f33a8}
+.support-note-mark{border-radius:10px;background:#0a2940}
+.card{border-radius:15px}
+.ticket-item{border-radius:12px}
+.message{border-radius:12px}
+.status{border-radius:999px}
+.file-input{border-radius:12px}
+.footer{border-color:#ffffff12}
+.page-heading h1{letter-spacing:-.055em}
+@media(max-width:780px){.auth-layout{grid-template-columns:1fr;gap:26px;padding-top:34px}.intro h1{font-size:clamp(48px,11vw,65px)}.auth-panel{padding:22px}.intro .support-note,.intro .trust-row{display:none}}
+@media(max-width:420px){.auth-layout{padding-inline:16px}.auth-panel{padding:18px}.site-nav .text-link{padding:8px 9px;font-size:10px}}
