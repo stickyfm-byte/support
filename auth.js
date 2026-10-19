@@ -36,12 +36,24 @@ document.querySelector("#signup-form").addEventListener("submit", async event =>
   event.preventDefault();
   if (!supabase) return showMessage(notice, "Complete Supabase setup first.", true);
   const form = new FormData(event.currentTarget);
+  const username = String(form.get("username") || "").trim();
+  if (!/^[A-Za-z0-9_]{3,24}$/.test(username)) {
+    return showMessage(notice, "Username must be 3–24 characters using only letters, numbers or underscores.", true);
+  }
   const { data, error } = await supabase.auth.signUp({
     email: form.get("email"),
     password: form.get("password"),
-    options: { emailRedirectTo: SITE_URL + "/dashboard.html" }
+    options: {
+      emailRedirectTo: SITE_URL + "/dashboard.html",
+      data: { username }
+    }
   });
-  if (error) return showMessage(notice, error.message, true);
+  if (error) {
+    if (/database error saving new user/i.test(error.message || "")) {
+      return showMessage(notice, "Supabase rejected the account while saving it to the database. A database trigger or username constraint likely needs fixing; check the Supabase Postgres logs for the exact cause.", true);
+    }
+    return showMessage(notice, error.message, true);
+  }
   if (data.session) location.href = "dashboard.html";
   else showMessage(notice, "Account created. Check your email for the verification link.");
 });
