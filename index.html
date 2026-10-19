@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/png" href="assets/favicon.png"><link rel="stylesheet" href="styles.css">
 </head>
 <body class="landing-page">
   <header class="topbar">
@@ -29,7 +29,7 @@
       <div class="trust-row"><span>Private conversations</span><span>Real staff support</span><span>Ticket history</span></div>
     </section>
     <section id="portal" class="panel auth-panel" aria-label="Sign in or create an account">
-      <div class="panel-kicker">PLAYER PORTAL <span>01 / 02</span></div>
+      <div class="panel-kicker">PLAYER PORTAL</div>
       <div class="tabs"><button class="tab active" type="button" data-tab="login">Sign in</button><button class="tab" type="button" data-tab="signup">Create account</button></div>
       <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
       <div id="setup-warning" class="notice error" hidden>Finish setup first: add your Supabase URL and public key to <code>config.js</code>.</div>
@@ -48,7 +48,7 @@
         <button class="button primary" type="submit">Create account <span>↗</span></button>
       </form>
       <div class="or-divider"><span>OR CONTINUE WITH</span></div>
-      <button id="discord-login" class="button discord" type="button"><span class="discord-icon">◈</span> Continue with Discord <span class="button-arrow">↗</span></button>
+      <button id="discord-login" class="button discord" type="button"><img src="assets/discord.webp" alt="" class="discord-logo"> Continue with Discord <span class="button-arrow">↗</span></button>
       <p class="fine-print">By continuing, you agree to use the support system respectfully. Never share your password with staff.</p>
     </section>
   </main>
