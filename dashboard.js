@@ -34,14 +34,23 @@ document.querySelector("#new-ticket").addEventListener("submit", async event => 
   const form = new FormData(event.currentTarget);
   const subject = String(form.get("subject")).trim();
   const body = String(form.get("body")).trim();
+  const file = form.get("attachment");
   if (!subject || !body) return showMessage(notice, "Please enter a subject and message.", true);
+  if (file instanceof File && file.size && (!["image/png","image/jpeg","image/webp","image/gif"].includes(file.type) || file.size > 5*1024*1024)) return showMessage(notice, "Choose a PNG, JPG, WEBP or GIF image no larger than 5 MB.", true);
   const submit = event.currentTarget.querySelector('button[type="submit"]');
   submit.disabled = true;
   const { data: ticket, error } = await supabase.from("tickets").insert({
     created_by: user.id, subject, category: form.get("category")
   }).select().single();
   if (error) { submit.disabled = false; return showMessage(notice, error.message, true); }
-  const { error: msgError } = await supabase.from("ticket_messages").insert({ticket_id:ticket.id, sender_id:user.id, body});
+  let attachment_path = null;
+  if (file instanceof File && file.size) {
+    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g,"_").slice(-100);
+    attachment_path = ticket.id + "/" + user.id + "/" + crypto.randomUUID() + "-" + safeName;
+    const { error: uploadError } = await supabase.storage.from("ticket-attachments").upload(attachment_path, file, {upsert:false, contentType:file.type});
+    if (uploadError) { await supabase.from("tickets").delete().eq("id",ticket.id); submit.disabled = false; return showMessage(notice, "Image upload failed: " + uploadError.message, true); }
+  }
+  const { error: msgError } = await supabase.from("ticket_messages").insert({ticket_id:ticket.id, sender_id:user.id, body, attachment_path});
   submit.disabled = false;
   if (msgError) return showMessage(notice, "Ticket created, but the first message failed: " + msgError.message, true);
   event.currentTarget.reset();
