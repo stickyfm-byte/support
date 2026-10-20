@@ -8,7 +8,7 @@ const old = document.querySelector("header.topbar");
 if (old) { const staffBits = old.querySelector(".row"); old.innerHTML = header; if (staffBits && /staff|dashboard/.test(location.pathname)) old.append(staffBits); }
 else document.body.insertAdjacentHTML("afterbegin", `<header class="topbar">${header}</header>`);
 document.querySelector(".footer")?.remove();
-document.body.insertAdjacentHTML("beforeend", `<footer class="footer"><span>© Mirage Productions</span><a href="https://discord.gg/mirageevents">Discord</a><a href="/terms.html">Terms</a><a href="/privacy-policy.html">Privacy</a><a href="mailto:contact@miragesmp.org">contact@miragesmp.org</a></footer>`);
+document.body.insertAdjacentHTML("beforeend", `<footer class="footer"><span>© Mirage Productions</span><a href="https://discord.gg/mirageevents">Discord</a><a href="/terms.html">Terms</a><a href="/privacy/">Privacy</a><a href="mailto:contact@miragesmp.org">contact@miragesmp.org</a></footer>`);
 
 // Reveal on scroll
 const io = new IntersectionObserver(es => es.forEach(e => e.isIntersecting && (e.target.classList.add("in"), io.unobserve(e.target))), { threshold: .12 });
@@ -84,7 +84,7 @@ const privacyUi = () => {
           <button class="button" type="button" data-privacy-save>Save choices</button>
           <button class="button primary" type="button" data-privacy-accept>Accept all</button>
         </div>
-        <p class="small">You can reopen these settings at any time using “Cookie settings” in the footer. Read our <a class="text-link" href="/privacy-policy.html">Privacy Policy</a>.</p>
+        <p class="small">You can reopen these settings at any time using “Cookie settings” in the footer. Read our <a class="text-link" href="/privacy/">Privacy Policy</a>.</p>
       </div>
     </section>`);
   const panel = document.querySelector("#privacy-settings");
@@ -104,7 +104,7 @@ document.querySelector("[data-open-privacy]")?.addEventListener("click", openPri
 if (!readConsent()) {
   document.body.insertAdjacentHTML("beforeend", `
     <aside class="privacy-banner" id="privacy-consent" aria-label="Cookie and privacy choices">
-      <div class="privacy-banner-copy"><strong>Privacy preferences</strong><p>We use essential storage for core site features. Optional analytics are not currently active. You can review your choices at any time.</p><a class="text-link" href="/privacy-policy.html">Privacy Policy</a></div>
+      <div class="privacy-banner-copy"><strong>Privacy preferences</strong><p>We use essential storage for core site features. Optional analytics are not currently active. You can review your choices at any time.</p><a class="text-link" href="/privacy/">Privacy Policy</a></div>
       <div class="privacy-banner-actions">
         <button class="button" type="button" data-banner-settings>Cookie settings</button>
         <button class="button" type="button" data-banner-reject>Reject optional</button>
