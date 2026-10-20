@@ -46,3 +46,72 @@ const open = () => {
 };
 document.querySelectorAll("[data-search]").forEach(b => b.addEventListener("click", open));
 addEventListener("keydown", e => { if ((e.key === "/" && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) || ((e.ctrlKey || e.metaKey) && e.key === "k")) { e.preventDefault(); open(); } });
+
+// Privacy and cookie preferences. Essential storage is always enabled; optional analytics
+// are currently not loaded by this site.
+const consentKey = "mirage-support-privacy-preferences";
+const readConsent = () => {
+  try { return JSON.parse(localStorage.getItem(consentKey) || "null"); }
+  catch { return null; }
+};
+const saveConsent = (analytics) => {
+  const value = { essential: true, analytics: Boolean(analytics), savedAt: new Date().toISOString() };
+  localStorage.setItem(consentKey, JSON.stringify(value));
+  document.querySelector("#privacy-consent")?.remove();
+  document.querySelector("#privacy-settings")?.remove();
+  document.dispatchEvent(new CustomEvent("mirage:privacy-preferences", { detail: value }));
+};
+const privacyUi = () => {
+  if (document.querySelector("#privacy-settings")) return;
+  const current = readConsent();
+  document.body.insertAdjacentHTML("beforeend", `
+    <section class="privacy-panel" id="privacy-settings" role="dialog" aria-modal="true" aria-labelledby="privacy-title">
+      <div class="privacy-card">
+        <button class="privacy-close" type="button" data-privacy-close aria-label="Close privacy settings">×</button>
+        <p class="eyebrow">YOUR PRIVACY</p>
+        <h2 id="privacy-title">Cookie &amp; privacy settings</h2>
+        <p class="muted">Choose whether to allow optional analytics storage. Essential storage supports core site features and sign-in and cannot be switched off here. This site does not currently load an analytics service, so enabling analytics will not activate tracking by itself.</p>
+        <div class="privacy-option">
+          <div><strong>Essential storage</strong><p>Required for core functionality, including remembering authentication state and these preferences.</p></div>
+          <span class="privacy-required">Always on</span>
+        </div>
+        <label class="privacy-option" for="privacy-analytics">
+          <div><strong>Optional analytics</strong><p>Reserved for usage measurement if an analytics tool is added in the future.</p></div>
+          <input id="privacy-analytics" type="checkbox" ${current?.analytics ? "checked" : ""}>
+        </label>
+        <div class="privacy-actions">
+          <button class="button" type="button" data-privacy-reject>Reject optional</button>
+          <button class="button" type="button" data-privacy-save>Save choices</button>
+          <button class="button primary" type="button" data-privacy-accept>Accept all</button>
+        </div>
+        <p class="small">You can reopen these settings at any time using “Cookie settings” in the footer. Read our <a class="text-link" href="/privacy-policy.html">Privacy Policy</a>.</p>
+      </div>
+    </section>`);
+  const panel = document.querySelector("#privacy-settings");
+  const close = () => panel.remove();
+  panel.querySelector("[data-privacy-close]").addEventListener("click", close);
+  panel.addEventListener("click", e => { if (e.target === panel) close(); });
+  panel.querySelector("[data-privacy-reject]").addEventListener("click", () => saveConsent(false));
+  panel.querySelector("[data-privacy-save]").addEventListener("click", () => saveConsent(panel.querySelector("#privacy-analytics").checked));
+  panel.querySelector("[data-privacy-accept]").addEventListener("click", () => {
+    // No optional analytics scripts are currently active; save the user's preference for future use.
+    saveConsent(true);
+  });
+};
+const openPrivacySettings = () => privacyUi();
+document.querySelector(".footer")?.insertAdjacentHTML("beforeend", '<button class="footer-privacy" type="button" data-open-privacy>Cookie settings</button>');
+document.querySelector("[data-open-privacy]")?.addEventListener("click", openPrivacySettings);
+if (!readConsent()) {
+  document.body.insertAdjacentHTML("beforeend", `
+    <aside class="privacy-banner" id="privacy-consent" aria-label="Cookie and privacy choices">
+      <div class="privacy-banner-copy"><strong>Privacy preferences</strong><p>We use essential storage for core site features. Optional analytics are not currently active. You can review your choices at any time.</p><a class="text-link" href="/privacy-policy.html">Privacy Policy</a></div>
+      <div class="privacy-banner-actions">
+        <button class="button" type="button" data-banner-settings>Cookie settings</button>
+        <button class="button" type="button" data-banner-reject>Reject optional</button>
+        <button class="button primary" type="button" data-banner-accept>Accept all</button>
+      </div>
+    </aside>`);
+  document.querySelector("[data-banner-settings]")?.addEventListener("click", privacyUi);
+  document.querySelector("[data-banner-reject]")?.addEventListener("click", () => saveConsent(false));
+  document.querySelector("[data-banner-accept]")?.addEventListener("click", () => saveConsent(true));
+}
