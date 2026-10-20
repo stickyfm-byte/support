@@ -57,6 +57,12 @@ function busyButton(button, state, label) {
   if (state) { button.dataset.originalText = button.textContent; button.textContent = label || "Working…"; }
   else if (button.dataset.originalText) { button.textContent = button.dataset.originalText; delete button.dataset.originalText; }
 }
+function wireImagePreview(input) {
+  if (!input) return;
+  const preview=document.createElement("div");preview.className="attachment-preview-wrap";preview.setAttribute("aria-live","polite");input.closest("label")?.insertAdjacentElement("afterend",preview);
+  let objectUrl=null;
+  input.addEventListener("change",()=>{if(objectUrl)URL.revokeObjectURL(objectUrl);objectUrl=null;preview.replaceChildren();const file=input.files?.[0];if(!file)return;const problem=validateFile(file);if(problem){const p=document.createElement("p");p.className="small";p.textContent=problem;preview.append(p);return;}objectUrl=URL.createObjectURL(file);const img=document.createElement("img");img.src=objectUrl;img.alt="Selected image preview";img.className="attachment-preview";const p=document.createElement("p");p.className="small";p.textContent=file.name+" · "+(file.size/1024/1024).toFixed(2)+" MB";preview.append(img,p);});
+}
 function validateFile(file) {
   if (!(file instanceof File) || !file.size) return "";
   if (!["image/png","image/jpeg","image/webp","image/gif"].includes(file.type)) return "Choose a PNG, JPG, WEBP or GIF image.";
@@ -140,10 +146,10 @@ async function openTicket(ticket) {
     const mh=document.createElement("div");mh.className="message-head";
     const who=document.createElement("strong");who.textContent=message.sender_id===user.id?"You (staff)":(fromStaff?"Mirage Support Team":(ticket.requester_name||"Player"));
     const when=document.createElement("span");when.textContent=formatDate(message.created_at);mh.append(who,when);
-    const body=document.createElement("div");body.className="message-body";body.textContent=message.body||"Attached an image";item.append(mh,body);
+    const body=document.createElement("div");body.className="message-body";body.textContent=message.body|| (message.attachment_path ? "Attached an image" : "");item.append(mh,body);
     if(message.attachment_path){
       const {data}=await supabase.storage.from("ticket-attachments").createSignedUrl(message.attachment_path,300);
-      if(data?.signedUrl){const a=document.createElement("a");a.href=data.signedUrl;a.target="_blank";a.rel="noopener noreferrer";a.className="text-link attachment-link";a.textContent="View attachment ↗";item.append(a);}
+      if(data?.signedUrl){const img=document.createElement("img");img.src=data.signedUrl;img.alt="Ticket attachment preview";img.className="attachment-preview";img.loading="lazy";const a=document.createElement("a");a.href=data.signedUrl;a.target="_blank";a.rel="noopener noreferrer";a.className="text-link attachment-link";a.textContent="Open full image ↗";item.append(img,a);}
       else {const p=document.createElement("p");p.className="small";p.textContent="Attachment unavailable.";item.append(p);}
     }
     thread.append(item);
@@ -151,6 +157,7 @@ async function openTicket(ticket) {
   if(!messages?.length)thread.innerHTML='<p class="empty">No messages have been sent yet.</p>';
   const form=document.createElement("form");form.className="stack";
   form.innerHTML='<label>Reply to player<textarea class="field" name="body" maxlength="5000" placeholder="Write a clear, helpful response…"></textarea></label><label>Attach an image (optional)<input class="file-input" name="attachment" type="file" accept="image/png,image/jpeg,image/webp,image/gif"></label><p class="small">PNG, JPG, WEBP or GIF · max 5 MB. You can send an attachment without text.</p><button class="button primary" type="submit">Send reply ↗</button>';
+  wireImagePreview(form.querySelector('input[name="attachment"]'));
   form.addEventListener("submit",async event=>{
     event.preventDefault();if(busy)return;
     const fd=new FormData(form),body=String(fd.get("body")||"").trim(),file=fd.get("attachment");
