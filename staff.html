@@ -1,5 +1,18 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Staff dashboard — Mirage Support</title><link rel="icon" type="image/png" href="assets/favicon.png"><link rel="stylesheet" href="styles.css"></head>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Staff dashboard — Mirage Support</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet"><link rel="icon" type="image/png" href="/assets/favicon.png"><link rel="stylesheet" href="/styles.css"></head>
 <body><header class="topbar"><a class="brand" href="https://miragesmp.org/" aria-label="Mirage Support home"><img class="brand-logo" src="/assets/mirage-logo.png" alt="" width="36" height="36"><span class="brand-name">MIRAGE <span>SUPPORT</span></span></a><div class="row"><a class="text-link" href="/dashboard/">Player portal</a><button id="signout" class="button" style="padding:8px 12px;background:#202024;color:#f4f4f0;border-color:#3c3c40">Sign out</button></div></header>
-<main class="page-wrap"><div class="page-heading"><div><p class="eyebrow">STAFF ONLY</p><h1>Support queue</h1><p>Review player tickets, reply, and update ticket status.</p></div><button id="refresh" class="button" style="background:#1b2230;color:#dbe1ee">Refresh ↻</button></div><div id="notice" class="notice" hidden></div><div class="layout-grid"><section class="card"><h2>All tickets</h2><div class="row" style="margin-bottom:12px"><label class="small" for="filter">Filter</label><select id="filter" class="field" style="flex:1"><option value="all">All tickets</option><option value="open">Open</option><option value="in_progress">In progress</option><option value="closed">Closed</option></select></div><div id="ticket-list" class="ticket-list"><p class="empty">Loading…</p></div></section>
-<section id="ticket-detail" class="card"><p class="empty">Choose a ticket from the queue to view the conversation.</p></section></div></main><script type="module" src="staff.js"></script></body></html>
+<main class="page-wrap"><div class="page-heading"><div><p class="eyebrow">STAFF ONLY</p><h1>Support queue</h1><p>Review player tickets, reply, and update ticket status.</p></div><button id="refresh" class="button" style="background:#1b2230;color:#dbe1ee">Refresh ↻</button></div><div id="notice" class="notice" hidden></div>
+<section id="admin-tools" class="card" hidden style="margin-bottom:20px">
+  <h2>Administrator controls</h2>
+  <p class="small">Manage staff access and remove tickets when necessary. These controls are restricted by Supabase to businessiconology@gmail.com.</p>
+  <form id="grant-staff-form" class="row" style="align-items:end;gap:10px;flex-wrap:wrap">
+    <label style="flex:1;min-width:220px">Grant staff access by account email<input class="field" type="email" name="email" required placeholder="staff@example.com"></label>
+    <button class="button primary" type="submit">Grant access</button>
+  </form>
+  <form id="revoke-staff-form" class="row" style="align-items:end;gap:10px;flex-wrap:wrap;margin-top:12px">
+    <label style="flex:1;min-width:220px">Revoke staff access by account email<input class="field" type="email" name="email" required placeholder="staff@example.com"></label>
+    <button class="button" type="submit">Revoke access</button>
+  </form>
+</section>
+<div class="layout-grid"><section class="card"><h2>All tickets</h2><div class="row" style="margin-bottom:12px"><label class="small" for="filter">Filter</label><select id="filter" class="field" style="flex:1"><option value="all">All tickets</option><option value="open">Open</option><option value="in_progress">In progress</option><option value="closed">Closed</option></select></div><div id="ticket-list" class="ticket-list"><p class="empty">Loading…</p></div></section>
+<section id="ticket-detail" class="card"><p class="empty">Choose a ticket from the queue to view the conversation.</p></section></div></main><script type="module" src="staff.js"></script><script type="module" src="/site.js"></script></body></html>

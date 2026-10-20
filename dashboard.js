@@ -113,8 +113,11 @@ $("#new-ticket")?.addEventListener("submit", async event => {
   busy = true; setBusy(submit, true, "Creating request…");
   let ticket = null, attachmentPath = null;
   try {
-    const result = await supabase.from("tickets").insert({ created_by: user.id, subject, category })
-      .select("id,subject,category,status,created_at,updated_at").single();
+    const requester_name = user.user_metadata?.username || user.user_metadata?.full_name || user.email;
+    const cols = "id,subject,category,status,created_at,updated_at";
+    let result = await supabase.from("tickets").insert({ created_by: user.id, subject, category, requester_name }).select(cols).single();
+    if (result.error && /requester_name/.test(result.error.message)) // migration not applied yet
+      result = await supabase.from("tickets").insert({ created_by: user.id, subject, category }).select(cols).single();
     if (result.error) throw result.error;
     ticket = result.data;
     try { attachmentPath = await uploadAttachment(file, ticket.id); }

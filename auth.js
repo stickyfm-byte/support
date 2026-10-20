@@ -16,12 +16,19 @@ if (location.hash.includes("error_description")) {
 }
 
 const tabs = [...document.querySelectorAll("[data-tab]")];
-tabs.forEach(tab => tab.addEventListener("click", () => {
-  tabs.forEach(item => item.classList.toggle("active", item === tab));
-  document.querySelector("#login-form").hidden = tab.dataset.tab !== "login";
-  document.querySelector("#signup-form").hidden = tab.dataset.tab !== "signup";
+function setAuthMode(mode) {
+  tabs.forEach(tab => {
+    const active = tab.dataset.tab === mode;
+    tab.classList.toggle("active", active);
+    tab.setAttribute("aria-selected", String(active));
+    tab.setAttribute("tabindex", active ? "0" : "-1");
+  });
+  document.querySelector("#login-form").hidden = mode !== "login";
+  document.querySelector("#signup-form").hidden = mode !== "signup";
   showMessage(notice, "");
-}));
+}
+tabs.forEach(tab => tab.addEventListener("click", () => setAuthMode(tab.dataset.tab)));
+setAuthMode("login");
 
 document.querySelector("#login-form").addEventListener("submit", async event => {
   event.preventDefault();
@@ -31,7 +38,9 @@ document.querySelector("#login-form").addEventListener("submit", async event => 
     email: form.get("email"), password: form.get("password")
   });
   if (error) return showMessage(notice, error.message, true);
-  location.href = "/dashboard/";
+  const { data: userData } = await supabase.auth.getUser();
+  const { data: staffData } = await supabase.from("support_staff").select("user_id").eq("user_id", userData.user.id).maybeSingle();
+  location.href = staffData ? "/staff.html" : "/dashboard/";
 });
 
 document.querySelector("#signup-form").addEventListener("submit", async event => {
@@ -85,5 +94,8 @@ document.querySelector("#reset-password").addEventListener("click", async () => 
 
 if (supabase) {
   const { data } = await supabase.auth.getSession();
-  if (data.session) location.replace("/dashboard/");
+  if (data.session) {
+    const { data: staffData } = await supabase.from("support_staff").select("user_id").eq("user_id", data.session.user.id).maybeSingle();
+    location.replace(staffData ? "/staff.html" : "/dashboard/");
+  }
 }

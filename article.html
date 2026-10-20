@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#031827"><title>Help – Mirage Support</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="/assets/favicon.png"><link rel="stylesheet" href="/styles.css"></head>
+<body><header class="topbar"></header><main class="article"><aside id="side"></aside><div id="main"></div></main>
+<script type="module">
+import { CATS, ARTICLES } from "/articles.js";
+const p = new URLSearchParams(location.search), art = ARTICLES.find(a => a.id === p.get("a"));
+const cat = CATS.find(c => c.id === (art ? art.cat : p.get("c"))) || CATS[0];
+const inCat = ARTICLES.filter(a => a.cat === cat.id);
+side.innerHTML = `<p class="eyebrow" style="margin-bottom:12px">${cat.title}</p>` + inCat.map(a => `<a href="/article.html?a=${a.id}" ${art && a.id === art.id ? 'aria-current="page"' : ""}>${a.title}</a>`).join("");
+const cta = `<div class="vote"><span class="small">Still stuck?</span><a class="button primary" href="/dashboard/">Open a request →</a></div>`;
+if (art) {
+  document.title = art.title + " – Mirage Support";
+  main.innerHTML = `<div class="crumbs"><a href="/">Help centre</a> / <a href="/article.html?c=${cat.id}">${cat.title}</a></div><h1>${art.title}</h1><div class="prose">${art.body}</div>
+  <div class="vote" id="vote"><span>Did this solve it?</span><button class="button" data-v="1">Yes</button><button class="button" data-v="0">Not really</button></div>${cta}`;
+  vote.onclick = e => { if (e.target.dataset.v) vote.innerHTML = e.target.dataset.v === "1" ? "<span>Glad that helped.</span>" : `<span>Sorry about that. A request will get a person on it.</span><a class="button primary" href="/dashboard/">Open a request →</a>`; };
+} else {
+  document.title = cat.title + " – Mirage Support";
+  main.innerHTML = `<div class="crumbs"><a href="/">Help centre</a></div><h1>${cat.title}</h1><p class="lead" style="margin-bottom:28px">${cat.desc}</p><div class="pop" style="grid-template-columns:1fr">${inCat.map(a => `<a href="/article.html?a=${a.id}"><strong>${a.title}</strong></a>`).join("")}</div>${cta}`;
+}
+await import("/site.js");
+</script></body></html>

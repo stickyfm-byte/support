@@ -20,12 +20,12 @@ export function showMessage(element, message, isError = false) {
 
 export async function requireUser() {
   if (!configured || !supabase) {
-    location.replace("/?setup=1");
+    location.replace("/login.html?setup=1");
     return null;
   }
   const { data, error } = await supabase.auth.getUser();
   if (error || !data.user) {
-    location.replace("/");
+    location.replace("/login.html");
     return null;
   }
   return data.user;
@@ -39,6 +39,13 @@ export async function isStaff(userId) {
     .eq("user_id", userId)
     .maybeSingle();
   return !error && !!data;
+}
+
+
+export async function isAdmin() {
+  if (!supabase) return false;
+  const { data, error } = await supabase.rpc("is_support_admin");
+  return !error && data === true;
 }
 
 export function escapeHtml(value = "") {

@@ -1,7 +1,7 @@
-import { supabase, requireUser, isStaff, showMessage, formatDate, signOut } from "./supabase.js";
+import { supabase, requireUser, isStaff, isAdmin, showMessage, formatDate, signOut } from "./supabase.js";
 const $ = selector => document.querySelector(selector);
 const notice = $("#notice"), list = $("#ticket-list"), detail = $("#ticket-detail");
-let user = null, selected = null, tickets = [], busy = false;
+let user = null, selected = null, tickets = [], busy = false, admin = false;
 
 $("#signout")?.addEventListener("click", signOut);
 $("#refresh")?.addEventListener("click", loadTickets);
@@ -11,9 +11,39 @@ try {
   user = await requireUser();
   if (user && supabase) {
     if (!await isStaff(user.id)) location.replace("/dashboard/");
-    else await loadTickets();
+    else {
+      admin = await isAdmin();
+      if (admin) $("#admin-tools").hidden = false;
+      await loadTickets();
+    }
   }
 } catch (error) { showMessage(notice, friendly(error), true); }
+
+$("#grant-staff-form")?.addEventListener("submit", async event => {
+  event.preventDefault();
+  if (!admin) return;
+  const form = event.currentTarget, email = String(new FormData(form).get("email") || "").trim();
+  const button = form.querySelector('button[type="submit"]');
+  busyButton(button, true, "Granting…");
+  const { error } = await supabase.rpc("admin_grant_support_staff", { target_email: email });
+  busyButton(button, false);
+  if (error) return showMessage(notice, friendly(error), true);
+  form.reset();
+  showMessage(notice, "Staff access granted to " + email + ".");
+});
+$("#revoke-staff-form")?.addEventListener("submit", async event => {
+  event.preventDefault();
+  if (!admin) return;
+  const form = event.currentTarget, email = String(new FormData(form).get("email") || "").trim();
+  if (!confirm("Revoke staff access for " + email + "?")) return;
+  const button = form.querySelector('button[type="submit"]');
+  busyButton(button, true, "Revoking…");
+  const { error } = await supabase.rpc("admin_revoke_support_staff", { target_email: email });
+  busyButton(button, false);
+  if (error) return showMessage(notice, friendly(error), true);
+  form.reset();
+  showMessage(notice, "Staff access revoked for " + email + ".");
+});
 
 function friendly(error) {
   const message = String(error?.message || error || "Unknown error");
@@ -44,7 +74,7 @@ async function uploadFile(file, ticketId) {
 }
 async function loadTickets() {
   list.innerHTML = '<p class="empty">Refreshing the support queue…</p>';
-  const {data,error}=await supabase.from("tickets").select("id,subject,category,status,created_by,created_at,updated_at").order("updated_at",{ascending:false});
+  const {data,error}=await supabase.from("tickets").select("*").order("updated_at",{ascending:false});
   if(error){list.innerHTML='<p class="empty">Queue unavailable.</p>';return showMessage(notice,friendly(error),true);}
   tickets=data||[];renderList();
 }
@@ -57,7 +87,7 @@ function renderList() {
     const title=document.createElement("strong");title.textContent=ticket.subject;
     const meta=document.createElement("span");meta.className="ticket-meta";
     const status=document.createElement("span");status.className="status "+ticket.status;status.textContent=ticket.status.replaceAll("_"," ");
-    const category=document.createElement("span");category.textContent=ticket.category;
+    const category=document.createElement("span");category.textContent=(ticket.ticket_number?"#"+ticket.ticket_number+" · ":"")+(ticket.requester_name?ticket.requester_name+" · ":"")+ticket.category;
     const date=document.createElement("span");date.textContent=formatDate(ticket.updated_at);
     meta.append(status,category,date);button.append(title,meta);button.addEventListener("click",()=>openTicket(ticket));list.append(button);
   }
@@ -83,7 +113,23 @@ async function openTicket(ticket) {
     await loadTickets();
     const current=tickets.find(t=>t.id===ticket.id);if(current)await openTicket(current);
   });
-  statusRow.append(label,select,update);detail.append(statusRow);
+  statusRow.append(label,select,update);
+  if (admin) {
+    const remove = document.createElement("button");
+    remove.type = "button"; remove.className = "button"; remove.textContent = "Delete ticket";
+    remove.addEventListener("click", async () => {
+      if (!confirm("Permanently delete this ticket and its conversation? This cannot be undone.")) return;
+      busyButton(remove, true, "Deleting…");
+      const { error } = await supabase.rpc("admin_delete_support_ticket", { target_ticket_id: ticket.id });
+      busyButton(remove, false);
+      if (error) return showMessage(notice, friendly(error), true);
+      selected = null; detail.innerHTML = '<p class="empty">Ticket deleted.</p>';
+      showMessage(notice, "Ticket and conversation deleted.");
+      await loadTickets();
+    });
+    statusRow.append(remove);
+  }
+  detail.append(statusRow);
   const thread=document.createElement("div");thread.className="thread";thread.innerHTML='<p class="empty">Loading conversation…</p>';detail.append(thread);
   const {data:messages,error}=await supabase.from("ticket_messages").select("id,sender_id,body,attachment_path,created_at").eq("ticket_id",ticket.id).order("created_at");
   if(error){thread.innerHTML='<p class="empty">Conversation unavailable.</p>';return showMessage(notice,friendly(error),true);}
@@ -92,7 +138,7 @@ async function openTicket(ticket) {
     const fromStaff=await isStaff(message.sender_id);
     const item=document.createElement("article");item.className="message"+(fromStaff?" staff":"");
     const mh=document.createElement("div");mh.className="message-head";
-    const who=document.createElement("strong");who.textContent=message.sender_id===user.id?"You (staff)":(fromStaff?"Mirage Support Team":"Player");
+    const who=document.createElement("strong");who.textContent=message.sender_id===user.id?"You (staff)":(fromStaff?"Mirage Support Team":(ticket.requester_name||"Player"));
     const when=document.createElement("span");when.textContent=formatDate(message.created_at);mh.append(who,when);
     const body=document.createElement("div");body.className="message-body";body.textContent=message.body||"Attached an image";item.append(mh,body);
     if(message.attachment_path){
