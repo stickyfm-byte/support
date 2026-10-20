@@ -96,6 +96,28 @@ async function loadTickets() {
   data.forEach(ticket => list.append(renderTicket(ticket)));
 }
 
+wireImagePreview($("#new-ticket")?.querySelector('input[name="attachment"]'));
+wireImagePreview($("#reply-form")?.querySelector('input[name="attachment"]'));
+
+function wireImagePreview(input) {
+  if (!input) return;
+  const preview = document.createElement("div"); preview.className = "attachment-preview-wrap"; preview.setAttribute("aria-live", "polite");
+  input.closest("label")?.insertAdjacentElement("afterend", preview);
+  let objectUrl = null;
+  input.addEventListener("change", () => {
+    if (objectUrl) URL.revokeObjectURL(objectUrl);
+    objectUrl = null; preview.replaceChildren();
+    const file = input.files?.[0];
+    if (!file) return;
+    const problem = validateImage(file);
+    if (problem) { const note = document.createElement("p"); note.className = "small"; note.textContent = problem; preview.append(note); return; }
+    objectUrl = URL.createObjectURL(file);
+    const img = document.createElement("img"); img.src = objectUrl; img.alt = "Selected image preview"; img.className = "attachment-preview";
+    const name = document.createElement("p"); name.className = "small"; name.textContent = file.name + " · " + (file.size / 1024 / 1024).toFixed(2) + " MB";
+    preview.append(img, name);
+  });
+}
+
 $("#new-ticket")?.addEventListener("submit", async event => {
   event.preventDefault();
   if (busy) return;
@@ -120,10 +142,7 @@ $("#new-ticket")?.addEventListener("submit", async event => {
       result = await supabase.from("tickets").insert({ created_by: user.id, subject, category }).select(cols).single();
     if (result.error) throw result.error;
     ticket = result.data;
-    try { attachmentPath = await uploadAttachment(file, ticket.id); }
-    catch (uploadError) {
-      showMessage(notice, "Ticket created, but the image could not be uploaded. Your written message will still be sent. " + friendlyError(uploadError), true);
-    }
+    attachmentPath = await uploadAttachment(file, ticket.id);
     const { error: messageError } = await supabase.from("ticket_messages").insert({
       ticket_id: ticket.id, sender_id: user.id, body, attachment_path: attachmentPath
     });
@@ -158,7 +177,7 @@ async function renderMessages(ticket, messages) {
     const head = document.createElement("div");
     head.className = "message-head";
     const author = document.createElement("strong");
-    author.textContent = message.sender_id === user.id ? "You" : (fromStaff ? "Mirage Support Team" : "Ticket participant");
+    author.textContent = message.sender_id === user.id ? (staff ? "You (staff)" : "You") : (fromStaff ? "Staff" : "Ticket participant");
     const date = document.createElement("span");
     date.textContent = formatDate(message.created_at);
     head.append(author, date);
@@ -171,8 +190,9 @@ async function renderMessages(ticket, messages) {
       if (!error && data?.signedUrl) {
         const link = document.createElement("a");
         link.href = data.signedUrl; link.target = "_blank"; link.rel = "noopener noreferrer";
-        link.textContent = "View attachment ↗"; link.className = "text-link attachment-link";
-        item.append(link);
+        link.textContent = "Open full image ↗"; link.className = "text-link attachment-link";
+        const preview = document.createElement("img"); preview.src = data.signedUrl; preview.alt = "Ticket attachment preview"; preview.className = "attachment-preview"; preview.loading = "lazy";
+        item.append(preview, link);
       } else {
         const note = document.createElement("p"); note.className = "small"; note.textContent = "Attachment is currently unavailable."; item.append(note);
       }
