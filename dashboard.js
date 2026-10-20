@@ -157,7 +157,11 @@ $("#new-ticket")?.addEventListener("submit", async event => {
     await loadTickets();
     await openTicket(ticket, false);
   } catch (error) {
-    showMessage(notice, friendlyError(error, "We could not create your ticket. Please try again."), true);
+    const message = ticket
+      ? "Your ticket record was created, but its message or image could not be saved. Check the error below, then open the ticket and retry. "
+      : "We could not create your ticket. Please try again. ";
+    showMessage(notice, message + friendlyError(error), true);
+    if (ticket) await loadTickets();
   } finally {
     busy = false; setBusy(submit, false);
   }
