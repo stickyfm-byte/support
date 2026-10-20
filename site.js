@@ -8,7 +8,7 @@ const old = document.querySelector("header.topbar");
 if (old) { const staffBits = old.querySelector(".row"); old.innerHTML = header; if (staffBits && /staff|dashboard/.test(location.pathname)) old.append(staffBits); }
 else document.body.insertAdjacentHTML("afterbegin", `<header class="topbar">${header}</header>`);
 document.querySelector(".footer")?.remove();
-document.body.insertAdjacentHTML("beforeend", `<footer class="footer"><span>© Mirage Productions</span><a href="https://discord.gg/mirageevents">Discord</a><a href="/terms.html">Terms</a><a href="/privacy/">Privacy</a><a href="mailto:contact@miragesmp.org">contact@miragesmp.org</a></footer>`);
+document.body.insertAdjacentHTML("beforeend", `<footer class="footer"><span>© Mirage Productions</span><a href="https://discord.gg/mirageevents">Discord</a><a href="/terms/">Terms</a><a href="/privacy/">Privacy</a><a href="mailto:contact@miragesmp.org">contact@miragesmp.org</a></footer>`);
 
 // Reveal on scroll
 const io = new IntersectionObserver(es => es.forEach(e => e.isIntersecting && (e.target.classList.add("in"), io.unobserve(e.target))), { threshold: .12 });
