@@ -7,6 +7,8 @@ Deno.serve(async (req) => {
   const { data: staff } = await db.from("support_staff").select("user_id").eq("user_id", record.sender_id).maybeSingle();
   if (!staff) return new Response("not a staff reply"); // only notify players
   const { data: ticket } = await db.from("tickets").select("subject,created_by").eq("id", record.ticket_id).single();
+  const { data: pref } = await db.from("user_settings").select("settings").eq("user_id", ticket!.created_by).maybeSingle();
+  if (pref?.settings?.emailReplies === false) return new Response("player opted out of reply emails");
   const { data: owner } = await db.auth.admin.getUserById(ticket!.created_by);
   const to = owner.user?.email; if (!to) return new Response("no email");
   const esc = (s: string) => s.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]!));

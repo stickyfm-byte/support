@@ -1,23 +1,34 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#031827"><title>Help – Mirage Support</title>
+<html lang="en"><head><script>try{var p=JSON.parse(localStorage.getItem("mprefs")||"{}"),r=document.documentElement;if(p.theme&&p.theme!=="auto")r.dataset.theme=p.theme;if(p.accent)r.dataset.accent=p.accent;if(p.motion!=null)r.dataset.motion=p.motion;if(p.density!=null)r.dataset.density=p.density;if(p.size)r.style.setProperty("--fs",p.size);if(p.lang)r.lang=p.lang}catch(e){}</script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#031827"><title>Help – Mirage Support</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="icon" href="/assets/favicon.png"><link rel="stylesheet" href="/styles.css"></head>
 <body><header class="topbar"></header><main class="article"><aside id="side"></aside><div id="main"></div></main>
 <script type="module">
-import { CATS, ARTICLES } from "/articles.js";
-const p = new URLSearchParams(location.search), art = ARTICLES.find(a => a.id === p.get("a"));
+import { CATS, ARTICLES, AUTHORS, byLine } from "/articles.js";
+import { suggest } from "/suggest.js";
+import { t, lang } from "/i18n.js";
+const ct = (c, k) => t("cat." + c.id + "." + k);
+const p = new URLSearchParams(location.hash.slice(1) || location.search), art = ARTICLES.find(a => a.id === p.get("a"));
 const cat = CATS.find(c => c.id === (art ? art.cat : p.get("c"))) || CATS[0];
 const inCat = ARTICLES.filter(a => a.cat === cat.id);
-side.innerHTML = `<p class="eyebrow" style="margin-bottom:12px">${cat.title}</p>` + inCat.map(a => `<a href="/article.html?a=${a.id}" ${art && a.id === art.id ? 'aria-current="page"' : ""}>${a.title}</a>`).join("");
-const cta = `<div class="vote"><span class="small">Still stuck?</span><a class="button primary" href="/dashboard/">Open a request →</a></div>`;
+side.innerHTML = `<p class="eyebrow" style="margin-bottom:12px">${ct(cat, "t")}</p>` + inCat.map(a => `<a href="/article.html#a=${a.id}" ${art && a.id === art.id ? 'aria-current="page"' : ""}>${a.title}</a>`).join("");
+const wanted = p.get("a");
+if (wanted && !art) { // unknown or mistyped article link: show a helpful page instead of silently falling back
+  document.title = t("art.nf") + " – Mirage Support";
+  main.innerHTML = `<div class="crumbs"><a href="/">${t("nav.help")}</a></div><h1>${t("art.nf")}</h1><p class="lead" style="margin-bottom:24px">${t("art.nfp")}</p><div class="row"><button class="button primary" data-search type="button">${t("art.search")}</button><a class="button" href="/">${t("nav.help")}</a></div>`;
+  await import("/site.js"); throw 0;
+}
+const cta = `<div class="vote"><span class="small">${t("art.stuck")}</span><a class="button primary" href="/dashboard/">${t("home.ctaB")} →</a></div>`;
 if (art) {
   document.title = art.title + " – Mirage Support";
-  main.innerHTML = `<div class="crumbs"><a href="/">Help centre</a> / <a href="/article.html?c=${cat.id}">${cat.title}</a></div><h1>${art.title}</h1><div class="prose">${art.body}</div>
-  <div class="vote" id="vote"><span>Did this solve it?</span><button class="button" data-v="1">Yes</button><button class="button" data-v="0">Not really</button></div>${cta}`;
-  vote.onclick = e => { if (e.target.dataset.v) vote.innerHTML = e.target.dataset.v === "1" ? "<span>Glad that helped.</span>" : `<span>Sorry about that. A request will get a person on it.</span><a class="button primary" href="/dashboard/">Open a request →</a>`; };
+  main.innerHTML = `<div class="crumbs"><a href="/">${t("nav.help")}</a> / <a href="/article.html#c=${cat.id}">${ct(cat, "t")}</a></div><h1>${art.title}</h1><div class="byline"><span class="av"><img src="${AUTHORS[art.author].img}" alt="${art.author}" width="44" height="44"></span><div>${t("art.by")} <strong>${art.author}</strong><small>${t("art.team")}</small></div></div>${lang() !== "en" ? `<div class="note">${t("art.enOnly")}</div>` : ""}<div class="prose">${art.body}</div>
+  ${(r => r.length ? `<h2 class="rel-title">${t("art.related")}</h2><div class="pop" style="grid-template-columns:1fr">${r.map(x => `<a href="/article.html#a=${x.id}"><strong>${x.title}</strong>${byLine(x)}</a>`).join("")}</div>` : "")(suggest(art.title + " " + art.keys, { n: 3, exclude: art.id, cat: art.cat }))}
+  <div class="vote" id="vote"><span>${t("art.solved")}</span><button class="button" data-v="1">${t("art.yes")}</button><button class="button" data-v="0">${t("art.no")}</button></div>${cta}`;
+  vote.onclick = e => { if (e.target.dataset.v) vote.innerHTML = e.target.dataset.v === "1" ? `<span>${t("art.thanks")}</span>` : `<span>${t("art.sorry")}</span><a class="button primary" href="/dashboard/">${t("home.ctaB")} →</a>`; };
 } else {
-  document.title = cat.title + " – Mirage Support";
-  main.innerHTML = `<div class="crumbs"><a href="/">Help centre</a></div><h1>${cat.title}</h1><p class="lead" style="margin-bottom:28px">${cat.desc}</p><div class="pop" style="grid-template-columns:1fr">${inCat.map(a => `<a href="/article.html?a=${a.id}"><strong>${a.title}</strong></a>`).join("")}</div>${cta}`;
+  document.title = ct(cat, "t") + " – Mirage Support";
+  main.innerHTML = `<div class="crumbs"><a href="/">${t("nav.help")}</a></div><h1>${ct(cat, "t")}</h1><p class="lead" style="margin-bottom:28px">${ct(cat, "d")}</p><div class="pop" style="grid-template-columns:1fr">${inCat.map(a => `<a href="/article.html#a=${a.id}"><strong>${a.title}</strong>${byLine(a)}</a>`).join("")}</div>${cta}`;
 }
+addEventListener("hashchange", () => location.reload());
 await import("/site.js");
 </script></body></html>

@@ -1,6 +1,5 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#031827">
-<link rel="canonical" href="https://support.miragesmp.org/">
+<html lang="en"><head><script>try{var p=JSON.parse(localStorage.getItem("mprefs")||"{}"),r=document.documentElement;if(p.theme&&p.theme!=="auto")r.dataset.theme=p.theme;if(p.accent)r.dataset.accent=p.accent;if(p.motion!=null)r.dataset.motion=p.motion;if(p.density!=null)r.dataset.density=p.density;if(p.size)r.style.setProperty("--fs",p.size);if(p.lang)r.lang=p.lang}catch(e){}</script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#031827"><link rel="canonical" href="https://support.miragesmp.org/">
 <title>Mirage Support – Help Centre</title><meta name="description" content="Answers, guides and a direct line to the Mirage team.">
 <meta property="og:title" content="Mirage Support"><meta property="og:description" content="Answers, guides and a direct line to the Mirage team."><meta property="og:image" content="https://support.miragesmp.org/assets/mirage-logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -8,16 +7,19 @@
 <body>
 <header class="topbar"></header>
 <main>
-<section class="hero"><p class="eyebrow">Mirage Support</p><h1>How can we<br><span class="accent">help?</span></h1><p class="lead">Quick answers to the usual questions, and a real person when you need one.</p>
-<button class="search" data-search type="button"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Search for a problem or topic<kbd>/</kbd></button>
+<section class="hero"><p class="eyebrow" data-i18n="home.eyebrow">Mirage Support</p><h1><span data-i18n="home.h1a">How can we</span><br><span class="accent" data-i18n="home.h1b">help?</span></h1><p class="lead" data-i18n="home.lead">Quick answers to the usual questions, and a real person when you need one.</p>
+<button class="search" data-search type="button"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span data-i18n="home.search">Search for a problem or topic</span><kbd>/</kbd></button>
 <div class="horizon"></div></section>
 <div class="wrap"><div class="cats" id="cats"></div>
-<div class="sec-title reveal"><h2>Popular right now</h2></div><div class="pop" id="pop"></div>
-<section class="cta reveal"><div><h2>Didn't find it?</h2><p class="muted" style="margin:0">Send us a request and we'll pick it up from there.</p></div><a class="button primary" href="/dashboard/">Open a request <span>→</span></a></section></div>
+<div class="sec-title reveal"><h2 data-i18n="home.popular">Popular right now</h2></div><div class="pop" id="pop"></div>
+<div class="sec-title reveal"><h2 data-i18n="home.writers">Meet the writers</h2></div><p class="muted reveal" style="margin:0 0 14px" data-i18n="home.writersNote">Every help article is written by someone on the Mirage team.</p><div class="writers" id="writers"></div>
+<section class="cta reveal"><div><h2 data-i18n="home.ctaH">Didn't find it?</h2><p class="muted" style="margin:0" data-i18n="home.ctaP">Send us a request and we'll pick it up from there.</p></div><a class="button primary" href="/dashboard/"><span data-i18n="home.ctaB">Open a request</span> <span>→</span></a></section></div>
 </main>
 <script type="module">
-import { CATS, ARTICLES } from "/articles.js";
-cats.innerHTML = CATS.map((c, i) => `<a class="cat reveal" href="/article.html?c=${c.id}"><b>0${i + 1}</b><div><h3>${c.title}</h3><p>${c.desc}</p></div><i>→</i></a>`).join("");
-pop.innerHTML = ARTICLES.filter(a => a.popular).map(a => `<a class="reveal" href="/article.html?a=${a.id}"><span>${CATS.find(c => c.id === a.cat).title}</span><strong>${a.title}</strong></a>`).join("");
+import { CATS, ARTICLES, AUTHORS, byLine, avatar } from "/articles.js";
+import { t } from "/i18n.js";
+cats.innerHTML = CATS.map((c, i) => `<a class="cat reveal" href="/article.html#c=${c.id}"><b>0${i + 1}</b><div><h3>${t("cat." + c.id + ".t")}</h3><p>${t("cat." + c.id + ".d")}</p></div><i>→</i></a>`).join("");
+pop.innerHTML = ARTICLES.filter(a => a.popular).map(a => `<a class="reveal" href="/article.html#a=${a.id}"><span>${t("cat." + a.cat + ".t")}</span><strong>${a.title}</strong>${byLine(a)}</a>`).join("");
+writers.innerHTML = Object.entries(AUTHORS).map(([name, w]) => `<div class="writer reveal"><img src="${w.img}" alt="" width="64" height="64"><div><strong>${name}</strong><span>${t("home.articlesN", { n: ARTICLES.filter(a => a.author === name).length })}</span></div></div>`).join("");
 await import("/site.js");
 </script></body></html>

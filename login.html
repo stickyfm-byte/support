@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-<head>
+<head><script>try{var p=JSON.parse(localStorage.getItem("mprefs")||"{}"),r=document.documentElement;if(p.theme&&p.theme!=="auto")r.dataset.theme=p.theme;if(p.accent)r.dataset.accent=p.accent;if(p.motion!=null)r.dataset.motion=p.motion;if(p.density!=null)r.dataset.density=p.density;if(p.size)r.style.setProperty("--fs",p.size);if(p.lang)r.lang=p.lang}catch(e){}</script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#031827">
@@ -24,35 +24,35 @@
     <section class="intro">
       <p class="eyebrow"><span class="eyebrow-dot"></span> MIRAGE SUPPORT / PLAYER SUPPORT</p>
       <h1><span class="hero-white">Mirage</span><br><span class="accent">Support</span></h1>
-      <p class="muted lead">Welcome to Mirage Support. Get help with the server or your account, track your requests, and follow every reply in one place.</p>
+      <p class="muted lead" data-i18n="home.lead">Welcome to Mirage Support. Get help with the server or your account, track your requests, and follow every reply in one place.</p>
       <div class="support-note"><span class="support-note-mark">↗</span><div><strong>One place for support.</strong><p>Open a ticket, add screenshots, and check back whenever you need.</p></div></div>
       <div class="trust-row"><span>Private conversations</span><span>Real staff support</span><span>Ticket history</span></div>
     </section>
     <section id="portal" class="panel auth-panel" aria-label="Sign in or create an account">
       <div class="panel-kicker">PLAYER PORTAL</div>
-      <div class="tabs"><button class="tab active" type="button" data-tab="login">Sign in</button><button class="tab" type="button" data-tab="signup">Create account</button></div>
+      <div class="tabs"><button class="tab active" type="button" data-tab="login" data-i18n="nav.signin">Sign in</button><button class="tab" type="button" data-tab="signup" data-i18n="login.tabUp">Create account</button></div>
       <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
       <div id="setup-warning" class="notice error" hidden>Finish setup first: add your Supabase URL and public key to <code>config.js</code>.</div>
       <form id="login-form" class="form-stack">
-        <label>Email address<input name="email" type="email" autocomplete="email" required placeholder="you@example.com"></label>
-        <label>Password<input name="password" type="password" autocomplete="current-password" required minlength="6" placeholder="Your password"></label>
-        <button class="button primary" type="submit">Sign in <span>↗</span></button>
-        <button id="reset-password" class="button link-button" type="button">Forgot password?</button>
+        <label><span data-i18n="login.email">Email address</span><input name="email" type="email" autocomplete="email" required placeholder="you@example.com"></label>
+        <label><span data-i18n="login.pass">Password</span><input name="password" type="password" autocomplete="current-password" required minlength="6" placeholder="Your password" data-i18n-ph="login.passPhIn"></label>
+        <button class="button primary" type="submit"><span data-i18n="nav.signin">Sign in</span> <span>↗</span></button>
+        <button id="reset-password" class="button link-button" type="button" data-i18n="login.forgot">Forgot password?</button>
       </form>
       <form id="signup-form" class="form-stack" hidden>
-        <label>Username<input name="username" type="text" autocomplete="username" required minlength="3" maxlength="24" pattern="[A-Za-z0-9_]+" title="Use 3–24 letters, numbers or underscores." placeholder="Your player name"></label>
-        <p class="hint">Use 3–24 letters, numbers or underscores.</p>
-        <label>Email address<input name="email" type="email" autocomplete="email" required placeholder="you@example.com"></label>
-        <label>Password<input name="password" type="password" autocomplete="new-password" required minlength="8" placeholder="At least 8 characters"></label>
-        <p class="hint">Use at least 8 characters. You may need to verify your email before signing in.</p>
-        <button class="button primary" type="submit">Create account <span>↗</span></button>
+        <label><span data-i18n="login.user">Username</span><input name="username" type="text" autocomplete="username" required minlength="3" maxlength="24" pattern="[A-Za-z0-9_]+" title="Use 3–24 letters, numbers or underscores." placeholder="Your player name" data-i18n-ph="login.userPh"></label>
+        <p class="hint" data-i18n="login.userHint">Use 3–24 letters, numbers or underscores.</p>
+        <label><span data-i18n="login.email">Email address</span><input name="email" type="email" autocomplete="email" required placeholder="you@example.com"></label>
+        <label><span data-i18n="login.pass">Password</span><input name="password" type="password" autocomplete="new-password" required minlength="8" placeholder="At least 8 characters" data-i18n-ph="login.passPhUp"></label>
+        <p class="hint" data-i18n="login.passHint">Use at least 8 characters. You may need to verify your email before signing in.</p>
+        <button class="button primary" type="submit"><span data-i18n="login.tabUp">Create account</span> <span>↗</span></button>
       </form>
-      <div class="or-divider"><span>OR CONTINUE WITH</span></div>
-      <button id="discord-login" class="button discord" type="button"><img src="assets/discord.webp" alt="" class="discord-logo"> Continue with Discord <span class="button-arrow">↗</span></button>
-      <p class="fine-print">By continuing, you agree to use the support system respectfully. Never share your password with staff.</p>
+      <div class="or-divider"><span data-i18n="login.or">OR CONTINUE WITH</span></div>
+      <button id="discord-login" class="button discord" type="button"><img src="assets/discord.webp" alt="" class="discord-logo"> <span data-i18n="login.discord">Continue with Discord</span> <span class="button-arrow">↗</span></button>
+      <p class="fine-print login-discord-note" data-i18n="login.fine">By continuing, you agree to use the support system respectfully. Never share your password with staff.</p>
     </section>
   </main>
-  <footer class="footer"><span>© MIRAGE SUPPORT</span><span>SUPPORT CENTRE</span><a href="/terms/">TERMS</a><a href="privacy/">PRIVACY</a></footer>
+  <footer class="footer"><span>© MIRAGE SUPPORT</span><span>SUPPORT CENTRE</span><a href="terms.html">TERMS</a><a href="privacy-policy.html">PRIVACY</a></footer>
   <script type="module" src="auth.js"></script>
 <script type="module" src="/site.js"></script></body>
 </html>

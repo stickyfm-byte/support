@@ -55,7 +55,14 @@ export function escapeHtml(value = "") {
 }
 
 export function formatDate(value) {
-  return new Date(value).toLocaleString();
+  let p = {}; try { p = JSON.parse(localStorage.getItem("mprefs") || "{}"); } catch {}
+  const tag = { en: "en-GB", es: "es", fr: "fr", de: "de", pt: "pt-BR" }[p.lang] || "en-GB";
+  const date = new Date(value);
+  if (!Number.isFinite(date.getTime())) return "";
+  const options = { dateStyle: "medium", timeStyle: "short" };
+  if (p.hour === "12") options.hour12 = true;
+  else if (p.hour === "24") { options.hour12 = false; options.hourCycle = "h23"; }
+  return new Intl.DateTimeFormat(tag, options).format(date);
 }
 
 export async function signOut() {
