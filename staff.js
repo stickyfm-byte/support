@@ -17,6 +17,9 @@ try {
     if (!await isStaff(user.id)) location.replace("/dashboard/");
     else {
       admin = await isAdmin(); ready = true;
+      if (!admin && String(user.email || "").toLowerCase() === "businessiconology@gmail.com") {
+        showMessage(notice, "You are signed in as the primary administrator, but Supabase has not enabled the admin role yet. Run admin-setup.sql in Supabase SQL Editor after creating this account, then sign out and back in.", true);
+      }
       if ($("#filter")) $("#filter").value = getPrefs().queue || "all";
       if (admin) $("#admin-tools").hidden = false;
       await loadTickets();
@@ -132,14 +135,14 @@ async function openTicket(ticket) {
   {
     const remove = document.createElement("button");
     remove.type = "button"; remove.className = "button danger"; remove.textContent = "Delete ticket";
-    remove.title = "Permanently delete this ticket (administrator permission required)";
+    remove.title = "Permanently delete this ticket (staff permission required)";
     remove.addEventListener("click", async () => {
       if (!confirm("Permanently delete this ticket and its conversation? This cannot be undone.")) return;
       busyButton(remove, true, "Deleting…");
-      const { data: deleted, error } = await supabase.rpc("admin_delete_support_ticket", { target_ticket_id: ticket.id });
+      const { data: deleted, error } = await supabase.rpc("staff_delete_support_ticket", { target_ticket_id: ticket.id });
       busyButton(remove, false);
-      if (error) return showMessage(notice, "Ticket deletion failed. Your account may not have administrator permission, or the delete function may not be installed. Details: " + friendly(error), true);
-      if (deleted !== true) return showMessage(notice, "The database did not delete this ticket. Confirm you are signed in with the primary administrator account and that ticket-delete-fix.sql has been applied.", true);
+      if (error) return showMessage(notice, "Ticket deletion failed. Your account may not have staff permission, or the staff delete function may not be installed. Details: " + friendly(error), true);
+      if (deleted !== true) return showMessage(notice, "The database did not delete this ticket. Confirm your account has staff access and that ticket-delete-fix.sql has been applied.", true);
       selected = null; detail.innerHTML = '<p class="empty">Ticket deleted.</p>';
       showMessage(notice, "Ticket and conversation deleted.");
       await loadTickets();

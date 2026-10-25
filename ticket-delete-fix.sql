@@ -44,7 +44,30 @@ revoke all on function public.admin_delete_support_ticket(uuid) from public, ano
 grant execute on function public.admin_delete_support_ticket(uuid) to authenticated;
 
 -- ticket_messages.ticket_id should already use ON DELETE CASCADE from supabase-setup.sql.
+
+
+-- Allow any authenticated support staff member (including the primary admin) to delete tickets.
+-- The check happens in the database, so hiding/showing the button is not the security boundary.
+create or replace function public.staff_delete_support_ticket(target_ticket_id uuid)
+returns boolean
+language plpgsql
+security definer
+set search_path = public, auth
+as $$
+begin
+  if auth.uid() is null or not public.is_support_staff() then
+    raise exception 'Staff access required. Ask the primary administrator to grant staff access.' using errcode = '42501';
+  end if;
+
+  delete from public.tickets where id = target_ticket_id;
+  return found;
+end;
+$$;
+
+revoke all on function public.staff_delete_support_ticket(uuid) from public, anon;
+grant execute on function public.staff_delete_support_ticket(uuid) to authenticated;
+
 -- Verify the function exists and is executable for signed-in users:
 select p.proname, pg_get_function_identity_arguments(p.oid) as arguments
 from pg_proc p join pg_namespace n on n.oid = p.pronamespace
-where n.nspname = 'public' and p.proname in ('is_support_admin', 'admin_delete_support_ticket');
+where n.nspname = 'public' and p.proname in ('is_support_admin', 'admin_delete_support_ticket', 'staff_delete_support_ticket');

@@ -87,12 +87,29 @@ begin
 end;
 $$;
 
+create or replace function public.staff_delete_support_ticket(target_ticket_id uuid)
+returns boolean
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if auth.uid() is null or not public.is_support_staff() then
+    raise exception 'Staff access required. Ask the primary administrator to grant staff access.';
+  end if;
+  delete from public.tickets where id = target_ticket_id;
+  return found;
+end;
+$$;
+
 revoke all on function public.admin_grant_support_staff(text) from public;
 revoke all on function public.admin_revoke_support_staff(text) from public;
 revoke all on function public.admin_delete_support_ticket(uuid) from public;
+revoke all on function public.staff_delete_support_ticket(uuid) from public;
 grant execute on function public.admin_grant_support_staff(text) to authenticated;
 grant execute on function public.admin_revoke_support_staff(text) to authenticated;
 grant execute on function public.admin_delete_support_ticket(uuid) to authenticated;
+grant execute on function public.staff_delete_support_ticket(uuid) to authenticated;
 
 -- Verification: the administrator should appear in this result.
 select u.email, s.user_id, s.created_at

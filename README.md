@@ -48,4 +48,12 @@ Run `support-v3.sql` in the Supabase SQL Editor (after `support-v2.sql`) to turn
 Staff and admins get a small **✎ name** button in the staff page header: click it, type a display name, save. It is shown when you claim a ticket and on your replies, syncs to your account, and can also be changed (with badge label and colour) in Settings → Staff. If left empty, your account username is used.
 
 ### If ticket deletion fails
-Run `ticket-delete-fix.sql` in the Supabase SQL Editor, then reload `/staff/`. Permanent deletion is restricted to the primary administrator account `businessiconology@gmail.com`. If you see “Administrator access required”, the browser session is signed into a different account; sign out and sign in with the primary administrator account. The page now displays the database error rather than silently failing.
+Run `ticket-delete-fix.sql` in the Supabase SQL Editor, then reload `/staff/`. Permanent deletion is available to any authenticated support staff member, including the primary administrator. The database checks staff membership through `is_support_staff()`; regular players cannot delete tickets. Run `ticket-delete-fix.sql` to install the staff deletion RPC, then reload `/staff/`. If you see “Staff access required”, ask the primary administrator to grant staff access to that account.
+
+## Primary administrator and staff management
+
+The only primary administrator is `businessiconology@gmail.com`. The Administrator controls panel is shown only when the database RPC `is_support_admin()` confirms that authenticated account. From that panel, the primary administrator can grant or revoke staff access by the email address associated with an existing account. The primary administrator cannot revoke their own staff access. All staff members can permanently delete tickets; this action is checked server-side against staff membership.
+
+To activate this securely: create and verify the `businessiconology@gmail.com` account in Supabase Auth; run `supabase-setup.sql` and the applicable upgrade scripts first; then run `admin-setup.sql` in Supabase SQL Editor. Sign out of Mirage Support and sign back in with `businessiconology@gmail.com`. Merely changing a display name or typing that email into a form does not grant administrator access.
+
+If the administrator panel is absent while signed into that account, verify that `admin-setup.sql` ran successfully and that the current browser session belongs to that exact account. This ZIP cannot change your live Supabase project by itself.
